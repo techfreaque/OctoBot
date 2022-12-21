@@ -21,6 +21,7 @@ import octobot.constants as constants
 import octobot.strategy_optimizer.fitness_parameter as fitness_parameter
 import octobot.strategy_optimizer.optimizer_filter as optimizer_filter
 import octobot.strategy_optimizer.optimizer_constraint as optimizer_constraint
+import octobot_evaluators.constants as evaluators_constants
 
 
 class OptimizerSettings:
@@ -28,65 +29,82 @@ class OptimizerSettings:
         if settings_dict is None:
             settings_dict = {}
         # generic
-        self.optimizer_config = settings_dict.get(enums.OptimizerConfig.OPTIMIZER_CONFIG.value, None)
-        self.randomly_chose_runs = settings_dict.get(enums.OptimizerConfig.RANDOMLY_CHOSE_RUNS.value,
-                                                     constants.OPTIMIZER_DEFAULT_RANDOMLY_CHOSE_RUNS)
+        self.exchange_id = settings_dict.get(
+            evaluators_constants.EVALUATOR_CHANNEL_DATA_EXCHANGE_ID)
+        self.optimizer_config = settings_dict.get(
+            enums.OptimizerConfig.OPTIMIZER_CONFIG.value) or None
+        self.randomly_chose_runs = settings_dict.get(
+            enums.OptimizerConfig.RANDOMLY_CHOSE_RUNS.value) \
+            or constants.OPTIMIZER_DEFAULT_RANDOMLY_CHOSE_RUNS
         self.data_files = settings_dict.get(enums.OptimizerConfig.DATA_FILES.value)
-        self.start_timestamp = settings_dict.get(enums.OptimizerConfig.START_TIMESTAMP.value, None)
-        self.end_timestamp = settings_dict.get(enums.OptimizerConfig.END_TIMESTAMP.value, None)
-        self.required_idle_cores = int(settings_dict.get(enums.OptimizerConfig.IDLE_CORES.value,
-                                                         constants.OPTIMIZER_DEFAULT_REQUIRED_IDLE_CORES))
-        self.notify_when_complete = settings_dict.get(enums.OptimizerConfig.NOTIFY_WHEN_COMPLETE.value,
-                                                      constants.OPTIMIZER_DEFAULT_NOTIFY_WHEN_COMPLETE)
+        self.start_timestamp = settings_dict.get(
+            enums.OptimizerConfig.START_TIMESTAMP.value, None)
+        self.end_timestamp = settings_dict.get(
+            enums.OptimizerConfig.END_TIMESTAMP.value, None)
+        self.required_idle_cores = int(
+            settings_dict.get(enums.OptimizerConfig.IDLE_CORES.value)
+            or constants.OPTIMIZER_DEFAULT_REQUIRED_IDLE_CORES)
+        self.notify_when_complete = settings_dict.get(
+            enums.OptimizerConfig.NOTIFY_WHEN_COMPLETE.value) \
+                or constants.OPTIMIZER_DEFAULT_NOTIFY_WHEN_COMPLETE
         self.optimizer_mode = settings_dict.get(enums.OptimizerConfig.MODE.value,
                                                 enums.OptimizerModes.NORMAL.value)
         optimizer_id = settings_dict.get(enums.OptimizerConfig.OPTIMIZER_ID.value, 1)
         self.optimizer_id = optimizer_id if optimizer_id is None else int(optimizer_id)
-        self.optimizer_ids = settings_dict.get(enums.OptimizerConfig.OPTIMIZER_IDS.value)
+        self.optimizer_ids = settings_dict.get(
+            enums.OptimizerConfig.OPTIMIZER_IDS.value)
         self.optimizer_mode = settings_dict.get(enums.OptimizerConfig.MODE.value,
                                                 enums.OptimizerModes.NORMAL.value)
         self.queue_size = int(settings_dict.get(enums.OptimizerConfig.QUEUE_SIZE.value,
                                                 constants.OPTIMIZER_DEFAULT_QUEUE_SIZE))
-        self.empty_the_queue = settings_dict.get(enums.OptimizerConfig.EMPTY_THE_QUEUE.value, False)
+        self.empty_the_queue = settings_dict.get(
+            enums.OptimizerConfig.EMPTY_THE_QUEUE.value, False)
         # update run database at the end of each period
-        self.db_update_period = int(settings_dict.get(enums.OptimizerConfig.DB_UPDATE_PERIOD.value,
-                                                      constants.OPTIMIZER_DEFAULT_DB_UPDATE_PERIOD))
+        self.db_update_period = int(
+            settings_dict.get(enums.OptimizerConfig.DB_UPDATE_PERIOD.value)
+            or constants.OPTIMIZER_DEFAULT_DB_UPDATE_PERIOD)
         # AI / genetic
-        self.max_optimizer_runs = settings_dict.get(enums.OptimizerConfig.MAX_OPTIMIZER_RUNS.value,
-                                                    constants.OPTIMIZER_DEFAULT_MAX_OPTIMIZER_RUNS)
-        self.generations_count = settings_dict.get(enums.OptimizerConfig.DEFAULT_GENERATIONS_COUNT.value,
-                                                   constants.OPTIMIZER_DEFAULT_GENERATIONS_COUNT)
-        self.initial_generation_count = settings_dict.get(enums.OptimizerConfig.INITIAL_GENERATION_COUNT.value,
-                                                          constants.OPTIMIZER_DEFAULT_INITIAL_GENERATION_COUNT)
-        self.run_per_generation = settings_dict.get(enums.OptimizerConfig.DEFAULT_RUN_PER_GENERATION.value,
-                                                    constants.OPTIMIZER_DEFAULT_RUN_PER_GENERATION)
+        self.max_optimizer_runs = settings_dict.get(
+            enums.OptimizerConfig.MAX_OPTIMIZER_RUNS.value) \
+             or constants.OPTIMIZER_DEFAULT_MAX_OPTIMIZER_RUNS
+        self.generations_count = settings_dict.get(
+            enums.OptimizerConfig.DEFAULT_GENERATIONS_COUNT.value) \
+             or constants.OPTIMIZER_DEFAULT_GENERATIONS_COUNT
+        self.initial_generation_count = settings_dict.get(
+            enums.OptimizerConfig.INITIAL_GENERATION_COUNT.value) \
+             or constants.OPTIMIZER_DEFAULT_INITIAL_GENERATION_COUNT
+        self.run_per_generation = settings_dict.get(
+            enums.OptimizerConfig.DEFAULT_RUN_PER_GENERATION.value) \
+             or constants.OPTIMIZER_DEFAULT_RUN_PER_GENERATION
         self.fitness_parameters = self.parse_fitness_parameters(
-            settings_dict.get(enums.OptimizerConfig.DEFAULT_SCORING_PARAMETERS.value,
-                              self.get_default_fitness_parameters())
-        )
+            settings_dict.get(enums.OptimizerConfig.DEFAULT_SCORING_PARAMETERS.value)
+            or self.get_default_fitness_parameters())
+        
         self.exclude_filters = self.parse_optimizer_filter(
-            settings_dict.get(enums.OptimizerConfig.DEFAULT_OPTIMIZER_FILTERS.value,
-                              self.get_default_optimizer_filters())
-        )
+            settings_dict.get(enums.OptimizerConfig.DEFAULT_OPTIMIZER_FILTERS.value)
+            or self.get_default_optimizer_filters())
+        
         self.constraints_by_key = self.parse_optimizer_constraint(
-            settings_dict.get(enums.OptimizerConfig.DEFAULT_OPTIMIZER_CONSTRAINTS.value,
-                              self.get_default_optimizer_constraints())
-        )
+            settings_dict.get(enums.OptimizerConfig.DEFAULT_OPTIMIZER_CONSTRAINTS.value)
+            or self.get_default_optimizer_constraints())
+        
         self.mutation_percent = float(settings_dict.get(
-            enums.OptimizerConfig.DEFAULT_MUTATION_PERCENT.value,
-            constants.OPTIMIZER_DEFAULT_MUTATION_PERCENT))
+            enums.OptimizerConfig.DEFAULT_MUTATION_PERCENT.value) \
+                or constants.OPTIMIZER_DEFAULT_MUTATION_PERCENT)
         self.max_mutation_probability_percent = decimal.Decimal(settings_dict.get(
-            enums.OptimizerConfig.MAX_MUTATION_PROBABILITY_PERCENT.value,
-            constants.OPTIMIZER_DEFAULT_MAX_MUTATION_PROBABILITY_PERCENT))
-        self.min_mutation_probability_percent = decimal.Decimal(settings_dict.get(
-            enums.OptimizerConfig.MIN_MUTATION_PROBABILITY_PERCENT.value,
-            constants.OPTIMIZER_DEFAULT_MIN_MUTATION_PROBABILITY_PERCENT))
-        self.max_mutation_number_multiplier = decimal.Decimal(settings_dict.get(
-            enums.OptimizerConfig.DEFAULT_MAX_MUTATION_NUMBER_MULTIPLIER.value,
-            constants.OPTIMIZER_DEFAULT_MAX_MUTATION_NUMBER_MULTIPLIER))
-        self.target_fitness_score = settings_dict.get(enums.OptimizerConfig.TARGET_FITNESS_SCORE.value)
-        self.stay_within_boundaries = settings_dict.get(enums.OptimizerConfig.STAY_WITHIN_BOUNDARIES.value,
-                                                        False)
+            enums.OptimizerConfig.MAX_MUTATION_PROBABILITY_PERCENT.value) \
+                or constants.OPTIMIZER_DEFAULT_MAX_MUTATION_PROBABILITY_PERCENT)
+        self.min_mutation_probability_percent = decimal.Decimal(
+            settings_dict.get(enums.OptimizerConfig.MIN_MUTATION_PROBABILITY_PERCENT.value)
+            or constants.OPTIMIZER_DEFAULT_MIN_MUTATION_PROBABILITY_PERCENT)
+        self.max_mutation_number_multiplier = decimal.Decimal(
+            settings_dict.get(enums.OptimizerConfig.DEFAULT_MAX_MUTATION_NUMBER_MULTIPLIER.value)
+            or constants.OPTIMIZER_DEFAULT_MAX_MUTATION_NUMBER_MULTIPLIER)
+        self.target_fitness_score = settings_dict.get(
+            enums.OptimizerConfig.TARGET_FITNESS_SCORE.value) \
+                or constants.OPTIMIZER_DEFAULT_TARGET_FITNESS_SCORE
+        self.stay_within_boundaries = settings_dict.get(
+            enums.OptimizerConfig.STAY_WITHIN_BOUNDARIES.value) or False
 
     def get_constraint(self, constraint_key):
         if constraint_key in self.constraints_by_key:
