@@ -230,12 +230,12 @@ def _get_portfolio(exchange_managers):
         if exchange_manager.is_future:
             for position in trading_api.get_positions(exchange_manager):
                 try:
-                    exchange_end_portfolio[position.get_currency()]["position"] = float(position.quantity)
+                    exchange_end_portfolio[position.get_currency()]["position"] = float(position.single_contract_value)
                 except KeyError:
                     exchange_end_portfolio[position.get_currency()] = {
                         commons_constants.PORTFOLIO_AVAILABLE: 0,
                         commons_constants.PORTFOLIO_TOTAL: 0,
-                        "position": float(position.quantity),
+                        "position": float(position.single_contract_value),
                     }
 
         for exchange_portfolio, portfolio in zip((exchange_origin_portfolio, exchange_end_portfolio),
