@@ -55,14 +55,14 @@ def get_to_install_and_remove_tentacles(
     additional_tentacles_package_urls = [
         adapt_url_to_bot_version(package_url, bot_version)
         for package_url in community_auth.get_saved_package_urls()
-    ] if community_auth.is_logged_in() else []
+    ] if community_auth and community_auth.is_logged_in() else []
     to_keep_tentacles = set(
         additional_tentacles_package_urls + [
             adapt_url_to_bot_version(package_url, bot_version)
             for package_url in get_env_variable_tentacles_urls()
         ] + get_env_variable_tentacles_urls()
     )
-    was_connected_with_remote_packages = community_auth.was_connected_with_remote_packages()
+    was_connected_with_remote_packages = community_auth and community_auth.was_connected_with_remote_packages()
 
     # do not remove tentacles:
     #   - if account has already been authenticated with valid extensions but is currently unauthenticated
@@ -72,7 +72,7 @@ def get_to_install_and_remove_tentacles(
     if was_connected_with_remote_packages and not community_auth.is_logged_in():
         # currently unauthenticated
         can_remove_tentacles = False
-    if not community_auth.successfully_fetched_tentacles_package_urls:
+    if community_auth and not community_auth.successfully_fetched_tentacles_package_urls:
         # did not fetch tentacles packages
         can_remove_tentacles = False
     to_remove_urls = [
