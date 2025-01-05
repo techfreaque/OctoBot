@@ -18,6 +18,9 @@
       "web"
     ]
   },
+  "metrics": {
+    "enabled": false
+  },
   "profile": "default",
   "accepted_terms": false
 }
